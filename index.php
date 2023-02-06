@@ -2,7 +2,7 @@
 
 include('conexion/conexion.php');
 include('conexion/conexionDB.php');
-        
+
 date_default_timezone_set('America/Bogota');
 
 $id = (isset($_POST['id'])) ? $_POST['id'] : "";
@@ -28,16 +28,14 @@ $celular = (isset($_POST['celular'])) ? $_POST['celular'] : "";
 $accion = (isset($_POST['accion'])) ? $_POST['accion'] : "";
 
 
-session_start(); 
+session_start();
 if (!isset($_SESSION['usuario'])) {
-
     header('location: login.php');
-
-} 
+}
 
 
 // procedimiento almacenado
-if($accion){
+if ($accion) {
     $result = $_POST['result'];
     $cedula = $_POST['cedula'];
     $celular = $_POST['celular'];
@@ -45,20 +43,22 @@ if($accion){
     $longitud = $_POST['longitud'];
 
     $sentencia = "SET NOCOUNT ON; exec faros.dbo.sp_nodejs_conexion_SP 'funcionalidad_qr', '$result', '$cedula', '$celular', '$latitud','$longitud' ";
-    $sentencia= $pdo2->query($sentencia);
+    $sentencia = $pdo2->query($sentencia);
 
-    //  print $query;
-    while ($row = $sentencia->fetch(PDO::FETCH_ASSOC)) {
-            // print_r($row); 
-        $var = $row;
-    }
-     }
-
-    // formulario para guardar
+    //   print $query;
+    if ($row = $sentencia->fetch(PDO::FETCH_ASSOC)) {
+        // print_r($row);
+        
+          $var = $row;
+        //   echo json_encode($row);
+        //   echo  $row[""];
+// aca se pasa la respuesta a un json y se valida para que no guarde todas las respuestas
+        if ($row[""] === "RONDA CON QR GRABADA EXITOSAMENTE") {
+// formulario para guardar
 switch ($accion) {
     case "Agregar":
-   
-$sentencia = $pdo->prepare("INSERT INTO tb_formularios(pregunta_1,pregunta_2,pregunta_3,pregunta_4,pregunta_5,pregunta_6,pregunta_7,pregunta_8,cedula,punto_recoleccion,foto1,foto2,foto3,observaciones,fecha,result,latitud,longitud,celular)
+
+        $sentencia = $pdo->prepare("INSERT INTO tb_formularios(pregunta_1,pregunta_2,pregunta_3,pregunta_4,pregunta_5,pregunta_6,pregunta_7,pregunta_8,cedula,punto_recoleccion,foto1,foto2,foto3,observaciones,fecha,result,latitud,longitud,celular)
                     VALUES (:pregunta_1,:pregunta_2,:pregunta_3,:pregunta_4,:pregunta_5,:pregunta_6,:pregunta_7,:pregunta_8,:cedula,:punto_recoleccion,:foto1,:foto2,:foto3,:observaciones,:fecha,:result,:latitud,:longitud,:celular)");
 
         $sentencia->bindParam(':pregunta_1', $radio_preg1);
@@ -232,10 +232,23 @@ if (isset($_GET["id"]) && isset($_GET["fd"])) {
     $listaFormulario = $sentencia->fetchAll(PDO::FETCH_ASSOC); //ASIGNAR LISTA A LA VARIABLE $listaFormulario
 }
 
+// no guarda
+        } else {
+ 
+        }
+    }
+    
+}
+
+
+
+
+
+
 //print_r($listaFormulario);
 
-?> 
- 
+?>
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -313,24 +326,24 @@ if (isset($_GET["id"]) && isset($_GET["fd"])) {
     <div class="shadow mb-4">
         <div class="p-3 container navigator">
             <img class="img-fluid ml-2" id="oncor_img" src="Imagenes/imagen_oncor.png">
-            
+
         </div>
     </div>
 
-  <div class="container mt-5">
-        <div  class="d-flex justify-content-center" >
-        <div class="btn btn-primary"  class="text-center"> <?php echo $_SESSION['usuario']; ?> </div>
-        <div class="btn btn-primary"  class="text-center"> <?php echo $_SESSION['contraseña']; ?></div>
-        <div class="btn btn-primary"  class="text-center"> <?php echo $_SESSION['cedula']; ?></div>
-        
-        
-        </div>
-    </div> 
+    <div class="container mt-5">
+        <div class="d-flex justify-content-center">
+            <div class="btn btn-primary" class="text-center"> <?php echo $_SESSION['usuario']; ?> </div>
+            <div class="btn btn-primary" class="text-center"> <?php echo $_SESSION['contraseña']; ?></div>
+            <div class="btn btn-primary" class="text-center"> <?php echo $_SESSION['cedula']; ?></div>
 
-    <div class="p-3 container navigator">  
+
+        </div>
+    </div>
+
+    <div class="p-3 container navigator">
         <a href="login.php" class="btn btn-danger">Cerrar Sesión</a>
     </div>
- 
+
     <div class="container mt-5">
         <div class="d-flex justify-content-center">
             <div class="encabezado">
@@ -370,16 +383,20 @@ if (isset($_GET["id"]) && isset($_GET["fd"])) {
         <script src="https://code.jquery.com/jquery-3.6.3.js" integrity="sha256-nQLuAZGRRcILA+6dMBOvcRh5Pe310sBpanc6+QBmyVM=" crossorigin="anonymous">
         </script>
 
-        <form  method="POST"   enctype="multipart/form-data" class="needs-validation" novalidate>
+        <form method="POST" enctype="multipart/form-data" class="needs-validation" novalidate>
 
             <h5 class="d-flex justify-content-center"> ubicación del dispositivo</h5>
             <div class="d-flex justify-content-center">
-                <label  for=""><h6>Latitud:</h6></label>
-                <input   class="btn btn-info" name="latitud" id="latitud" readonly>
+                <label for="">
+                    <h6>Latitud:</h6>
+                </label>
+                <input class="btn btn-info" name="latitud" id="latitud" readonly>
             </div><br>
             <div class="d-flex justify-content-center">
-                <label for=""><h6>Longitd: </h6></label>
-                <input   class="btn btn-primary" name="longitud" id="longitud" readonly>
+                <label for="">
+                    <h6>Longitd: </h6>
+                </label>
+                <input class="btn btn-primary" name="longitud" id="longitud" readonly>
             </div>
 
             <!-- final prueba   <div id="result">Resultado AQUI</div> aca muestra la informacion que contiene el QR -->
@@ -484,7 +501,7 @@ if (isset($_GET["id"]) && isset($_GET["fd"])) {
                     <div class="valid-feedback">Cargando...</div>
                     <div class="invalid-feedback">es necesario marcar una opcion</div>
                 </div>
-             
+
             </div>
 
             <div class="d-flex justify-content-center">
@@ -602,22 +619,22 @@ if (isset($_GET["id"]) && isset($_GET["fd"])) {
                 </div>
             </div>
 
-    <!-- libreria  para escanear QR-->
-    
-                <h2 class="d-flex justify-content-center">Lectura QR</h2>
-               
-                <div class="20203 d-flex justify-content-center">   <img src="imagenes/q.png"    style="width:300px;" style="height:100%;"  class="position-absolute">
-                    <div style="width:300px;"   style="height:96px;" id="reader">
-                    </div>
+            <!-- libreria  para escanear QR-->
+
+            <h2 class="d-flex justify-content-center">Lectura QR</h2>
+
+            <div class="20203 d-flex justify-content-center"> <img src="imagenes/q.png" style="width:300px;" style="height:100%;" class="position-absolute">
+                <div style="width:300px;" style="height:96px;" id="reader">
                 </div>
-             
+            </div>
+
             <div class="d-flex justify-content-center">
-            <h4>Código:</h4>
-                   
-                    <div id="result" name="result" style="background-color: black;"></div>
-                    <div class="valid-feedback">qr</div>
-                    <div class="invalid-feedback">es necesario registrar el qr</div>
-           
+                <h4>Código:</h4>
+
+                <div id="result" name="result" style="background-color: black;"></div>
+                <div class="valid-feedback">qr</div>
+                <div class="invalid-feedback">es necesario registrar el qr</div>
+
             </div>
 
 
@@ -672,7 +689,7 @@ if (isset($_GET["id"]) && isset($_GET["fd"])) {
             <input type="hidden" name="registro_id" value="0">
 
             <div class="container_button">
-                <input class="btn-enviar" id="Agregar" type="submit" value="Agregar" name="accion"  >
+                <input class="btn-enviar" id="Agregar" type="submit" value="Agregar" name="accion">
             </div>
 
             <hr>
@@ -751,8 +768,8 @@ if (isset($_GET["id"]) && isset($_GET["fd"])) {
                                 <td><?php echo $fomulario['latitud']; ?></td>
                                 <td><?php echo $fomulario['longitud']; ?></td>
                                 <td>
-                                
-                                
+
+
                                     <form action="" method="POST">
                                         <input type="hidden" name="id" value="<?php echo $fomulario['id']; ?>">
                                         <button class="btn btn-danger" value="Eliminar" type="submit" name="accion" onclick="return Confirmar('¿ Esta seguro que desea eliminar el registro ?');">Eliminar</button>
@@ -792,11 +809,11 @@ if (isset($_GET["id"]) && isset($_GET["fd"])) {
         function onScanSuccess(qrCodeMessage) {
 
             document.getElementById('result').innerHTML = '<input value="' + qrCodeMessage +
-                '" class="form-control" type="placeholder" name="result" id="result" disabled>';
-            
+                '" class="form-control" type="placeholder" name="result" id="result">';
+
             Swal.fire('success',
-  ' CODIGO QR CARGADO'
-)
+                ' CODIGO QR CARGADO'
+            )
             //      document.getElementById("result").innerHTML =
             // '<span class="result">' + qrCodeMessage + "</span>";
         }
@@ -846,14 +863,14 @@ if (isset($_GET["id"]) && isset($_GET["fd"])) {
 
 </html>
 
-  <script>
+<script>
     var latitud = document.getElementById("latitud");
     var longitud = document.getElementById("longitud");
     navigator.geolocation.getCurrentPosition(function(position) {
         latitud.setAttribute("value", position.coords.latitude);
         longitud.setAttribute("value", position.coords.longitude);
     });
-</script>  
+</script>
 
 <script>
     // validacion de campos del formulario BOOSTRAP
@@ -877,16 +894,16 @@ if (isset($_GET["id"]) && isset($_GET["fd"])) {
             })
     })()
 </script>
-<Script>if("geolocation" in navigator) {
+<Script>
+    if ("geolocation" in navigator) {
         navigator.geolocation.getCurrentPosition(function(position) {
-                console.log(position);
+            console.log(position);
         });
-}
+    }
 </Script>
-   <script>
-    
-        var x = '<?php echo json_encode($var); ?>';
-    </script>
- 
+<script>
+    var x = '<?php echo json_encode($row[""]); ?>';
+</script>
+
 <link rel="stylesheet">
-    <script src="./script.js"></script>
+<script src="./script.js"></script>
