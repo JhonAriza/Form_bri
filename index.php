@@ -22,6 +22,7 @@ $foto2 = (isset($_FILES['foto2']["name"])) ? $_FILES['foto2']["name"] : "";
 $foto3 = (isset($_FILES['foto3']["name"])) ? $_FILES['foto3']["name"] : "";
 $observaciones = (isset($_POST['observaciones'])) ? $_POST['observaciones'] : "";
 $result = (isset($_POST['result'])) ? $_POST['result'] : "";
+
 $latitud = (isset($_POST['latitud'])) ? $_POST['latitud'] : "";
 $longitud = (isset($_POST['longitud'])) ? $_POST['longitud'] : "";
 $celular = (isset($_POST['celular'])) ? $_POST['celular'] : "";
@@ -222,6 +223,15 @@ switch ($accion) {
 }
 
 
+
+// no guarda
+        }  
+    }
+
+    
+}
+
+    // se saca la sentencia para que se deje recorrer el arreglo
 $sentencia = $pdo->prepare("SELECT * FROM `tb_formularios` WHERE 1 ");
 $sentencia->execute();
 $listaFormulario = $sentencia->fetchAll(PDO::FETCH_ASSOC); //ASIGNAR LISTA A LA VARIABLE $listaFormulario
@@ -231,20 +241,6 @@ if (isset($_GET["id"]) && isset($_GET["fd"])) {
     $sentencia->execute();
     $listaFormulario = $sentencia->fetchAll(PDO::FETCH_ASSOC); //ASIGNAR LISTA A LA VARIABLE $listaFormulario
 }
-
-// no guarda
-        } else {
- 
-        }
-    }
-    
-}
-
-
-
-
-
-
 //print_r($listaFormulario);
 
 ?>
@@ -333,10 +329,6 @@ if (isset($_GET["id"]) && isset($_GET["fd"])) {
     <div class="container mt-5">
         <div class="d-flex justify-content-center">
             <div class="btn btn-primary" class="text-center"> <?php echo $_SESSION['usuario']; ?> </div>
-            <div class="btn btn-primary" class="text-center"> <?php echo $_SESSION['contraseña']; ?></div>
-            <div class="btn btn-primary" class="text-center"> <?php echo $_SESSION['cedula']; ?></div>
-
-
         </div>
     </div>
 
@@ -631,12 +623,40 @@ if (isset($_GET["id"]) && isset($_GET["fd"])) {
             <div class="d-flex justify-content-center">
                 <h4>Código:</h4>
 
-                <div id="result" name="result" style="background-color: black;"></div>
+                <div id="result" name="result"></div>
+                 
                 <div class="valid-feedback">qr</div>
                 <div class="invalid-feedback">es necesario registrar el qr</div>
-
             </div>
+  
 
+
+
+
+
+
+            
+
+<div class="d-flex justify-content-center">
+    <div class="pregunta1-1">
+
+        <?php
+     // WHERE id=:id"
+         $sentencia = $pdo2->prepare("select Imei_FK  from qr where 'Codigo' = 'result'");
+        //  $sentencia = $pdo2->prepare("select Imei_FK  from qr");
+        $sentencia->execute();
+        $imei = $sentencia->fetchAll(PDO::FETCH_ASSOC); //ASIGNAR LISTA A LA VARIABLE $listaFormulario
+
+        ?> <div class="col-md-8">
+        <select class="form-control"  required>
+        <?php foreach ($imei  as $celular): ?>
+            <option><?php echo $celular['Imei_FK']; ?></option>
+        <?php endforeach; ?>
+        </select>
+    </div>
+
+    </div>
+</div>
 
 
             <div class="d-flex justify-content-center mt-4 mb-4">
@@ -809,7 +829,7 @@ if (isset($_GET["id"]) && isset($_GET["fd"])) {
         function onScanSuccess(qrCodeMessage) {
 
             document.getElementById('result').innerHTML = '<input value="' + qrCodeMessage +
-                '" class="form-control" type="placeholder" name="result" id="result">';
+                '" class="form-control" type="placeholder" name="result" id="result" style="background-color:#a6f7a6;">';
 
             Swal.fire('success',
                 ' CODIGO QR CARGADO'
@@ -829,6 +849,7 @@ if (isset($_GET["id"]) && isset($_GET["fd"])) {
             });
         html5QrcodeScanner.render(onScanSuccess, onScanError);
     </script>
+  
     <script>
         $(document).ready(function() {
             $('#dataTable').DataTable({
@@ -853,6 +874,8 @@ if (isset($_GET["id"]) && isset($_GET["fd"])) {
             });
         });
     </script>
+
+    
     <script>
         function Confirmar(Mensaje) {
             return (confirm(Mensaje)) ? true : false;
